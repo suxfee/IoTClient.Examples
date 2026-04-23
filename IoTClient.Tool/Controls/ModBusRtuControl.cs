@@ -79,7 +79,8 @@ namespace IoTClient.Tool.Controls
             txt_content.Text = @"小技巧:
 1、按住Ctrl后点击连接将自动扫描串口连接参数组合
 2、读取地址支持批量读取，如4-3将会读取4、5、6地址对应的数据
-3、读取地址支持批量读取，如4、5、6、8、12";
+3、读取地址支持批量读取，如4、5、6、8、12
+4、读取单个地址可带入功能码，如50_4，表示地址为50、功能码为4";
 
 
             var config = ConnectionConfig.GetConfig();
@@ -105,7 +106,8 @@ namespace IoTClient.Tool.Controls
                 case "rd_ulong": rd_ulong.Checked = true; break;
                 case "rd_float": rd_float.Checked = true; break;
                 case "rd_double": rd_double.Checked = true; break;
-            };
+            }
+            ;
             chb_show_package.Checked = config.ModBusRtu_ShowPackage;
         }
 
@@ -152,7 +154,7 @@ namespace IoTClient.Tool.Controls
                         break;
                 }
                 var plcadd = che_plcadd.Checked;
-                client = new ModbusRtuClient(PortName, BaudRate, DataBits, StopBits, parity, format: format,plcAddresses: plcadd);
+                client = new ModbusRtuClient(PortName, BaudRate, DataBits, StopBits, parity, format: format, plcAddresses: plcadd);
                 var result = client.Open();
                 if (result.IsSucceed)
                 {
@@ -363,25 +365,25 @@ namespace IoTClient.Tool.Controls
                         {
                             var cAddress = (address + i * bLength).ToString();
                             if (rd_coil.Checked)
-                                AppendText($"[读取 {address + i * bLength} 成功]：{ client.ReadCoil(address.ToString(), cAddress, rValue).Value}\t\t耗时：{result.TimeConsuming}ms");
+                                AppendText($"[读取 {address + i * bLength} 成功]：{client.ReadCoil(address.ToString(), cAddress, rValue).Value}\t\t耗时：{result.TimeConsuming}ms");
                             else if (rd_discrete.Checked)
-                                AppendText($"[读取 {address + i * bLength} 成功]：{ client.ReadDiscrete(address.ToString(), cAddress, rValue).Value}\t\t耗时：{result.TimeConsuming}ms");
+                                AppendText($"[读取 {address + i * bLength} 成功]：{client.ReadDiscrete(address.ToString(), cAddress, rValue).Value}\t\t耗时：{result.TimeConsuming}ms");
                             else if (rd_short.Checked)
-                                AppendText($"[读取 {address + i * bLength} 成功]：{ client.ReadInt16(address.ToString(), cAddress, rValue).Value}\t\t耗时：{result.TimeConsuming}ms");
+                                AppendText($"[读取 {address + i * bLength} 成功]：{client.ReadInt16(address.ToString(), cAddress, rValue).Value}\t\t耗时：{result.TimeConsuming}ms");
                             else if (rd_ushort.Checked)
-                                AppendText($"[读取 {address + i * bLength} 成功]：{ client.ReadUInt16(address.ToString(), cAddress, rValue).Value}\t\t耗时：{result.TimeConsuming}ms");
+                                AppendText($"[读取 {address + i * bLength} 成功]：{client.ReadUInt16(address.ToString(), cAddress, rValue).Value}\t\t耗时：{result.TimeConsuming}ms");
                             else if (rd_int.Checked)
-                                AppendText($"[读取 {address + i * bLength} 成功]：{ client.ReadInt32(address.ToString(), cAddress, rValue).Value}\t\t耗时：{result.TimeConsuming}ms");
+                                AppendText($"[读取 {address + i * bLength} 成功]：{client.ReadInt32(address.ToString(), cAddress, rValue).Value}\t\t耗时：{result.TimeConsuming}ms");
                             else if (rd_uint.Checked)
-                                AppendText($"[读取 {address + i * bLength} 成功]：{ client.ReadUInt32(address.ToString(), cAddress, rValue).Value}\t\t耗时：{result.TimeConsuming}ms");
+                                AppendText($"[读取 {address + i * bLength} 成功]：{client.ReadUInt32(address.ToString(), cAddress, rValue).Value}\t\t耗时：{result.TimeConsuming}ms");
                             else if (rd_long.Checked)
-                                AppendText($"[读取 {address + i * bLength} 成功]：{ client.ReadInt64(address.ToString(), cAddress, rValue).Value}\t\t耗时：{result.TimeConsuming}ms");
+                                AppendText($"[读取 {address + i * bLength} 成功]：{client.ReadInt64(address.ToString(), cAddress, rValue).Value}\t\t耗时：{result.TimeConsuming}ms");
                             else if (rd_ulong.Checked)
-                                AppendText($"[读取 {address + i * bLength} 成功]：{ client.ReadUInt64(address.ToString(), cAddress, rValue).Value}\t\t耗时：{result.TimeConsuming}ms");
+                                AppendText($"[读取 {address + i * bLength} 成功]：{client.ReadUInt64(address.ToString(), cAddress, rValue).Value}\t\t耗时：{result.TimeConsuming}ms");
                             else if (rd_float.Checked)
-                                AppendText($"[读取 {address + i * bLength} 成功]：{ client.ReadFloat(address.ToString(), cAddress, rValue).Value}\t\t耗时：{result.TimeConsuming}ms");
+                                AppendText($"[读取 {address + i * bLength} 成功]：{client.ReadFloat(address.ToString(), cAddress, rValue).Value}\t\t耗时：{result.TimeConsuming}ms");
                             else if (rd_double.Checked)
-                                AppendText($"[读取 {address + i * bLength} 成功]：{ client.ReadDouble(address.ToString(), cAddress, rValue).Value}\t\t耗时：{result.TimeConsuming}ms");
+                                AppendText($"[读取 {address + i * bLength} 成功]：{client.ReadDouble(address.ToString(), cAddress, rValue).Value}\t\t耗时：{result.TimeConsuming}ms");
                         }
                     }
                     else
@@ -441,45 +443,94 @@ namespace IoTClient.Tool.Controls
                 //单个读取
                 else
                 {
-                    if (rd_coil.Checked)
+                    var addressAndfunctionCode = txt_address.Text.Split('_');
+                    if (addressAndfunctionCode.Length == 1)
                     {
-                        result = client.ReadCoil(txt_address.Text, stationNumber);
+                        if (rd_coil.Checked)
+                        {
+                            result = client.ReadCoil(txt_address.Text, stationNumber);
+                        }
+                        else if (rd_short.Checked)
+                        {
+                            result = client.ReadInt16(txt_address.Text, stationNumber);
+                        }
+                        else if (rd_ushort.Checked)
+                        {
+                            result = client.ReadUInt16(txt_address.Text, stationNumber);
+                        }
+                        else if (rd_int.Checked)
+                        {
+                            result = client.ReadInt32(txt_address.Text, stationNumber);
+                        }
+                        else if (rd_uint.Checked)
+                        {
+                            result = client.ReadUInt32(txt_address.Text, stationNumber);
+                        }
+                        else if (rd_long.Checked)
+                        {
+                            result = client.ReadInt64(txt_address.Text, stationNumber);
+                        }
+                        else if (rd_ulong.Checked)
+                        {
+                            result = client.ReadUInt64(txt_address.Text, stationNumber);
+                        }
+                        else if (rd_float.Checked)
+                        {
+                            result = client.ReadFloat(txt_address.Text, stationNumber);
+                        }
+                        else if (rd_double.Checked)
+                        {
+                            result = client.ReadDouble(txt_address.Text, stationNumber);
+                        }
+                        else if (rd_discrete.Checked)
+                        {
+                            result = client.ReadDiscrete(txt_address.Text, stationNumber);
+                        }
                     }
-                    else if (rd_short.Checked)
+                    else if (addressAndfunctionCode.Length == 2)
                     {
-                        result = client.ReadInt16(txt_address.Text, stationNumber);
-                    }
-                    else if (rd_ushort.Checked)
-                    {
-                        result = client.ReadUInt16(txt_address.Text, stationNumber);
-                    }
-                    else if (rd_int.Checked)
-                    {
-                        result = client.ReadInt32(txt_address.Text, stationNumber);
-                    }
-                    else if (rd_uint.Checked)
-                    {
-                        result = client.ReadUInt32(txt_address.Text, stationNumber);
-                    }
-                    else if (rd_long.Checked)
-                    {
-                        result = client.ReadInt64(txt_address.Text, stationNumber);
-                    }
-                    else if (rd_ulong.Checked)
-                    {
-                        result = client.ReadUInt64(txt_address.Text, stationNumber);
-                    }
-                    else if (rd_float.Checked)
-                    {
-                        result = client.ReadFloat(txt_address.Text, stationNumber);
-                    }
-                    else if (rd_double.Checked)
-                    {
-                        result = client.ReadDouble(txt_address.Text, stationNumber);
-                    }
-                    else if (rd_discrete.Checked)
-                    {
-                        result = client.ReadDiscrete(txt_address.Text, stationNumber);
+                        var address = addressAndfunctionCode[0];
+                        var functionCode = byte.Parse(addressAndfunctionCode[1]);
+                        if (rd_coil.Checked)
+                        {
+                            result = client.ReadCoil(address, stationNumber, functionCode);
+                        }
+                        else if (rd_short.Checked)
+                        {
+                            result = client.ReadInt16(address, stationNumber, functionCode);
+                        }
+                        else if (rd_ushort.Checked)
+                        {
+                            result = client.ReadUInt16(address, stationNumber, functionCode);
+                        }
+                        else if (rd_int.Checked)
+                        {
+                            result = client.ReadInt32(address, stationNumber, functionCode);
+                        }
+                        else if (rd_uint.Checked)
+                        {
+                            result = client.ReadUInt32(address, stationNumber, functionCode);
+                        }
+                        else if (rd_long.Checked)
+                        {
+                            result = client.ReadInt64(address, stationNumber, functionCode);
+                        }
+                        else if (rd_ulong.Checked)
+                        {
+                            result = client.ReadUInt64(address, stationNumber, functionCode);
+                        }
+                        else if (rd_float.Checked)
+                        {
+                            result = client.ReadFloat(address, stationNumber, functionCode);
+                        }
+                        else if (rd_double.Checked)
+                        {
+                            result = client.ReadDouble(address, stationNumber, functionCode);
+                        }
+                        else if (rd_discrete.Checked)
+                        {
+                            result = client.ReadDiscrete(address, stationNumber, functionCode);
+                        }
                     }
 
                     if (result.IsSucceed)
@@ -540,7 +591,7 @@ namespace IoTClient.Tool.Controls
             }
             try
             {
-                var address = txt_address.Text?.Trim().Split('-')[0];
+                var address = txt_address.Text?.Trim().Split('-')[0].Split('_')[0];
                 dynamic result = null;
                 if (rd_coil.Checked)
                 {
@@ -720,7 +771,7 @@ namespace IoTClient.Tool.Controls
                 var constant = new BrokenLineChart(txt_address.Text);
                 constant.Show();
                 while (!constant.IsDisposed)
-                { 
+                {
                     dynamic result = null;
                     if (rd_coil.Checked)
                         result = client.ReadCoil(txt_address.Text, stationNumber);

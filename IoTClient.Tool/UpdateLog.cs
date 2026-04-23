@@ -118,6 +118,11 @@ namespace IoTClient.Tool
             logs.Add("内容");
             logs.Add("1.fix - BACnet扫描后不能读写");
 
+            logs.Add("\r\n版本：[1.1.05]");
+            logs.Add($"时间：2026-04-23");
+            logs.Add("内容");
+            logs.Add("1.ModbusRtu读取单个地址可带入功能码");
+
             textBox1.Text = string.Join("\r\n", logs);
             if (hasNew)
             {
