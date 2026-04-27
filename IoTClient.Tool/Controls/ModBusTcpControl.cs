@@ -80,7 +80,8 @@ namespace IoTClient.Tool
             txt_content.Text = @"小技巧:
 1、读取地址支持批量读取，如4-3将会读取4、5、6地址对应的数据
 2、读取地址支持批量读取，如4、5、6、8、12
-3、读取单个地址可带入功能码，如50_4，表示地址为50、功能码为4";
+3、读取单个地址可带入功能码，如50_4：表示地址为50，功能码为4
+4、写入单个地址可带入功能码，如50_4_6：表示地址为50，读取功能码为4，写入功能码为6";
 
             var config = ConnectionConfig.GetConfig();
             if (!string.IsNullOrWhiteSpace(config.ModBusTcp_IP)) txt_ip.Text = config.ModBusTcp_IP;
@@ -372,7 +373,7 @@ namespace IoTClient.Tool
                         else if (rd_discrete.Checked)
                             result = client.ReadDiscrete(txt_address.Text, stationNumber);
                     }
-                    else if (addressAndfunctionCode.Length == 2)
+                    else if (addressAndfunctionCode.Length >= 2)
                     {
                         var address = addressAndfunctionCode[0];
                         var functionCode = byte.Parse(addressAndfunctionCode[1]);
@@ -465,6 +466,11 @@ namespace IoTClient.Tool
             try
             {
                 var address = txt_address.Text.Split('-')[0].Split('_')[0];
+                var functionCode = (byte)16;
+                if (txt_address.Text.Split('-')[0].Split('_').Length == 3)
+                {
+                    functionCode = byte.Parse(txt_address.Text.Split('-')[0].Split('_')[2]);
+                }
                 dynamic result = null;
                 if (rd_coil.Checked)
                 {
@@ -484,35 +490,35 @@ namespace IoTClient.Tool
                 }
                 else if (rd_short.Checked)
                 {
-                    result = client.Write(address, short.Parse(txt_value.Text?.Trim()), stationNumber);
+                    result = client.Write(address, short.Parse(txt_value.Text?.Trim()), stationNumber, functionCode);
                 }
                 else if (rd_ushort.Checked)
                 {
-                    result = client.Write(address, ushort.Parse(txt_value.Text?.Trim()), stationNumber);
+                    result = client.Write(address, ushort.Parse(txt_value.Text?.Trim()), stationNumber, functionCode);
                 }
                 else if (rd_int.Checked)
                 {
-                    result = client.Write(address, int.Parse(txt_value.Text?.Trim()), stationNumber);
+                    result = client.Write(address, int.Parse(txt_value.Text?.Trim()), stationNumber, functionCode);
                 }
                 else if (rd_uint.Checked)
                 {
-                    result = client.Write(address, uint.Parse(txt_value.Text?.Trim()), stationNumber);
+                    result = client.Write(address, uint.Parse(txt_value.Text?.Trim()), stationNumber, functionCode);
                 }
                 else if (rd_long.Checked)
                 {
-                    result = client.Write(address, long.Parse(txt_value.Text?.Trim()), stationNumber);
+                    result = client.Write(address, long.Parse(txt_value.Text?.Trim()), stationNumber, functionCode);
                 }
                 else if (rd_ulong.Checked)
                 {
-                    result = client.Write(address, ulong.Parse(txt_value.Text?.Trim()), stationNumber);
+                    result = client.Write(address, ulong.Parse(txt_value.Text?.Trim()), stationNumber, functionCode);
                 }
                 else if (rd_float.Checked)
                 {
-                    result = client.Write(address, float.Parse(txt_value.Text?.Trim()), stationNumber);
+                    result = client.Write(address, float.Parse(txt_value.Text?.Trim()), stationNumber, functionCode);
                 }
                 else if (rd_double.Checked)
                 {
-                    result = client.Write(address, double.Parse(txt_value.Text?.Trim()), stationNumber);
+                    result = client.Write(address, double.Parse(txt_value.Text?.Trim()), stationNumber, functionCode);
                 }
                 else if (rd_discrete.Checked)
                 {
